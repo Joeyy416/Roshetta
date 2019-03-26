@@ -7,7 +7,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class verify extends Mailable
+class WelcomeMail extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -28,6 +28,6 @@ class verify extends Mailable
      */
     public function build()
     {
-        return $this->view('verify-mail');
+        return $this->view('emails.welcome-mail');
     }
 }

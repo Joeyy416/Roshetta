@@ -25,6 +25,8 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-        //
+        Gate::define('can-act' , function(){
+          return \Auth::user()->role->title === "Super Admin";
+        });
     }
 }

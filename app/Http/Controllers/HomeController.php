@@ -4,6 +4,12 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
+use App\Product as Product;
+use App\Order as Order;
+use App\User;
+
+
+
 class HomeController extends Controller
 {
     /**
@@ -14,6 +20,7 @@ class HomeController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
+        $this->middleware('verified');
     }
 
     /**
@@ -23,6 +30,11 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('home');
+        $user=auth()->user();
+
+        $orders = Order::all();
+        $users = User::all();
+        return view('home')->with('users',$users);
     }
+
 }

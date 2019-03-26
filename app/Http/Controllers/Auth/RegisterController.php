@@ -7,8 +7,13 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\RegistersUsers;
+use Illuminate\Support\Facades\Mail;
 
-use App\Mail\verify;
+use Illuminate\Http\Request;
+
+
+use App\Mail\WelcomeMail;
+
 
 class RegisterController extends Controller
 {
@@ -30,7 +35,7 @@ class RegisterController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/home';
+    protected $redirectTo = '/email/verify';
 
     /**
      * Create a new controller instance.
@@ -39,7 +44,7 @@ class RegisterController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('guest');
+        $this->middleware('guest')->except('showRegisterFormForEmploee');
     }
 
     /**
@@ -54,8 +59,9 @@ class RegisterController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:6', 'confirmed'],
-            'phone' => ['required'],
-            'gender' => ['required']
+            'phone' => ['required','unique:users'],
+            'gender' => ['required'],
+            'profilePic' => ['image']
         ]);
     }
 
@@ -65,7 +71,7 @@ class RegisterController extends Controller
      * @param  array  $data
      * @return \App\User
      */
-    protected function create(array $data)
+    protected function create(Request $data)
     {
        $user = new User();
 
@@ -75,23 +81,28 @@ class RegisterController extends Controller
        $user->gender =  $data['gender'];
        $user->password =  Hash::make($data['password']);
 
+       if($data['profilePic'] === null){
+
        $user->save();
+       }
 
-       $response['user']=$user;
-       $response['success']=1;
+       else{
 
-       echo response()->json($response);
-       \Mail::to($user)->send(new verify);
+         $imageFullName = $data['profilePic']->getClientOriginalName();
+         $imageExtension = $data['profilePic']->getClientOriginalExtension();
+         $imagePath = pathinfo($imageFullName , PATHINFO_FILENAME);
+
+         $imageNameToStore = $imagePath.time().'.'.$imageExtension;
+         $user->profilePic = $imageNameToStore ;
+
+         $data->file('profilePic')->storeAs('public/profilePics/' . $user->email , $imageNameToStore );
+
+         $user->save();
+       }
+
+
+       Mail::to($user)->send(new WelcomeMail);
        return $user ;
 
-
-        //
-        // return User::create([
-        //     'name' => $data['name'],
-        //     'email' => $data['email'],
-        //     'password' => Hash::make($data['password']),
-        //     'phone' =>$data['phone'],
-        //     'gender' => $data['gender']
-        // ]);
     }
 }

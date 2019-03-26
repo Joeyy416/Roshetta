@@ -15,6 +15,8 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Auth::routes();
+Auth::routes(['verify' =>true]);
+
+Route::get('/superadmin/create-employee','Auth\RegisterController@showRegisterFormForEmploee')->middleware('can:can-act'); 
 
 Route::get('/home', 'HomeController@index')->name('home');

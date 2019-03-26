@@ -45,11 +45,15 @@
                             </li>
                             @if (Route::has('register'))
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('register') }}">{{ __('Register') }}</a>
+                                    <a class="nav-link" href="{{ route('superadmin/register') }}">{{ __('Register') }}</a>
                                 </li>
                             @endif
                         @else
+
                             <li class="nav-item dropdown">
+                              @if(Auth::user()->profilePic != null)
+                                <img class="thumbnail" src="storage/profilePics/{{Auth::user()->email}}/{{Auth::user()->profilePic}}" style="max-width:30px;">
+                              @endif
                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
                                     {{ Auth::user()->name }} <span class="caret"></span>
                                 </a>
